@@ -23,9 +23,13 @@ export default function Reservas() {
   };
 
   const obtenerReservas = async () => {
-    const res = await fetch("/api/reservas");
-    const data = await res.json();
+    try {
+      const res = await fetch("/api/reservas");
+      const data = await res.json();
     setReservas(data.reverse()); 
+    } catch (error) {
+      console.log(error)
+    }
   };
 
   useEffect(() => {
