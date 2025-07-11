@@ -28,6 +28,7 @@ export default function Reservas() {
     });
     const json = await res.json();
     setMensaje(json.mensaje);
+    console.log(reservas)
   }
 
   reset();
@@ -62,6 +63,7 @@ export default function Reservas() {
   useEffect(() => {
     obtenerReservas();
   }, []);
+  console.log(reservas)
 
   return (
     <div
