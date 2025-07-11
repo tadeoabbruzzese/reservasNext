@@ -8,20 +8,32 @@ export default function Reservas() {
   const { register, handleSubmit, reset, formState: { errors } } = useForm();
   const [mensaje, setMensaje] = useState("");
   const [reservas, setReservas] = useState([]);
+  const [reservaEditar, setReservaEditar] = useState(null);
 
   const onSubmit = async (data) => {
+  if (reservaEditar) {
+    // Update
+    await fetch(`/api/reservas/${reservaEditar.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    setMensaje("Reserva actualizada");
+  } else {
+    // Crear
     const res = await fetch("/api/reservar", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     });
-
     const json = await res.json();
     setMensaje(json.mensaje);
-    reset();
-    obtenerReservas();
-  };
+  }
 
+  reset();
+  setReservaEditar(null);
+  obtenerReservas();
+};
   const obtenerReservas = async () => {
     try {
       const res = await fetch("/api/reservas");
@@ -30,6 +42,21 @@ export default function Reservas() {
     } catch (error) {
       console.log(error)
     }
+    
+  };
+  const eliminarReserva = async (id) => {
+    if (!confirm("¿Seguro que querés eliminar esta reserva?")) return;
+
+    await fetch(`/api/reservas/${id}`, {
+      method: "DELETE",
+    });
+
+    obtenerReservas();
+  };
+
+  const seleccionarReserva = (reserva) => {
+    setReservaEditar(reserva);
+    reset(reserva); 
   };
 
   useEffect(() => {
@@ -109,6 +136,17 @@ export default function Reservas() {
           >
             Reservar
           </button>
+          {reservaEditar && (
+          <button
+            onClick={() => {
+              reset();
+              setReservaEditar(null);
+            }}
+            className="w-full bg-gray-500 text-white p-2 rounded hover:bg-gray-600 transition"
+          >
+            Cancelar edición
+          </button>
+        )}
         </form>
 
         {mensaje && <p className="text-green-600 mt-4 text-center">{mensaje}</p>}
@@ -118,6 +156,7 @@ export default function Reservas() {
         <div className="space-y-4">
           <AnimatePresence>
             {reservas.map((r, idx) => (
+              
               <motion.div
                 key={idx}
                 initial={{ opacity: 0, y: 20 }}
@@ -125,10 +164,23 @@ export default function Reservas() {
                 exit={{ opacity: 0 }}
                 className="bg-white shadow-md p-4 rounded"
               >
+                
+
                 <p className="font-bold">{r.nombre}</p>
                 <p>{r.email}</p>
                 <p>{r.personas} personas</p>
                 <p>{r.fecha} {r.hora}</p>
+                <button
+                  onClick={() => eliminarReserva(r.id)}
+                  className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition mt-2">
+                  Eliminar
+                </button>
+                <button
+                  onClick={() => seleccionarReserva(r)}
+                  className="bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-600 transition ml-2 mt-2"
+                >
+                  Editar
+                </button>
               </motion.div>
             ))}
           </AnimatePresence>
