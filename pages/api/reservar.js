@@ -1,13 +1,12 @@
-import { PrismaClient } from "@prisma/client";
+import { db } from '../../lib/prisma'
 
-const prisma = new PrismaClient();
 
 export default async function handler(req, res) {
   if (req.method === "POST") {
     const { nombre, email, personas, fecha, hora } = req.body;
 
     try {
-      await prisma.reserva.create({
+      await db.reserva.create({
         data: { nombre, email, personas: parseInt(personas), fecha, hora },
       });
       res.status(200).json({ mensaje: "Reserva guardada correctamente!" });

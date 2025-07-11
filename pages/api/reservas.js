@@ -1,10 +1,8 @@
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { db } from '../../lib/prisma'
 
 export default async function handler(req, res) {
   try {
-    const reservas = await prisma.reserva.findMany({
+    const reservas = await db.reserva.findMany({
       orderBy: { id: "desc" },
     });
     res.status(200).json(reservas);

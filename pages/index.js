@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 
+
 export default function Reservas() {
   const { register, handleSubmit, reset, formState: { errors } } = useForm();
   const [mensaje, setMensaje] = useState("");
