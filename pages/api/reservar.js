@@ -1,33 +1,21 @@
-import fs from 'fs';
-import path from 'path';
+import { PrismaClient } from "@prisma/client";
 
-export default function handler(req, res) {
-    
+const prisma = new PrismaClient();
+
+export default async function handler(req, res) {
   if (req.method === "POST") {
     const { nombre, email, personas, fecha, hora } = req.body;
 
-    const filePath = path.join(process.cwd(), "reservas.json");
-
-    let reservas = [];
-
-    if (fs.existsSync(filePath)) {
-      const data = fs.readFileSync(filePath, "utf-8");
-      reservas = JSON.parse(data);
+    try {
+      await prisma.reserva.create({
+        data: { nombre, email, personas: parseInt(personas), fecha, hora },
+      });
+      res.status(200).json({ mensaje: "Reserva guardada correctamente!" });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ mensaje: "Error guardando reserva" });
     }
-
-    reservas.push({
-      nombre,
-      email,
-      personas,
-      fecha,
-      hora,
-      creada: new Date().toISOString(),
-    });
-
-    fs.writeFileSync(filePath, JSON.stringify(reservas, null, 2));
-
-    res.status(200).json({ mensaje: "Reserva creada correctamente" });
   } else {
-    res.status(405).json({ error: "Método no permitido" });
+    res.status(405).json({ mensaje: "Método no permitido" });
   }
 }

@@ -1,24 +1,15 @@
-import fs from 'fs'
-import path from 'path'
+import { PrismaClient } from "@prisma/client";
 
-export default function handler(req,res) {
-    
-    if (req.method === "GET") {
-        const filePath = path.join(process.cwd(), "reservas.json");
+const prisma = new PrismaClient();
 
-        if (fs.existsSync(filePath)) {
-            const data = fs.readFileSync(filePath, "utf-8")
-            const reservas = JSON.parse(data)
-            res.status(200).json(reservas)
-        }
-        else{
-            res.status(200).json([])
-        }
-        
-    }
-    else{
-        res.status(405).json({ error: "Método no permitido"}
-
-        )
-    }
+export default async function handler(req, res) {
+  try {
+    const reservas = await prisma.reserva.findMany({
+      orderBy: { id: "desc" },
+    });
+    res.status(200).json(reservas);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ mensaje: "Error obteniendo reservas" });
+  }
 }
